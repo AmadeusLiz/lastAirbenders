@@ -4,6 +4,7 @@ import { StyleSheet, Text, Image, Dimensions, FlatList, View } from "react-nativ
 import { Container, Input, Item, H1, Header, Spinner, Card, CardItem, Body } from "native-base";
 import { FontAwesome } from '@expo/vector-icons';
 import backend from "../api/backend";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 //Obtener valores del ancho y alto del dispositivo
 const { width, height } = Dimensions.get("window");
@@ -68,25 +69,27 @@ useEffect (() =>{
           renderItem={({ item }) => {
             return (
               <View>
-                <Card>
-                  <CardItem cardBody>
-                    <Image
-                      source={
-                        item.photoUrl
-                          ? { uri: `${item.photoUrl}` }
-                          : require("../../assets/lastAirbendersLogo.png")
-                      }
-                      style={item.photoUrl ? styles.characterImage : styles.imageNotFound}
-                    />
-                  </CardItem>
-                  <CardItem cardBody>
-                    <Body>
-                      <Text>{item.name}</Text>
-                      <Text>{item.affiliation}</Text>
-                      <Text>{item.gender}</Text>
-                    </Body>
-                  </CardItem>
-                </Card>
+                <TouchableOpacity onPress={() => navigation.navigate("charactersDetail", {id: item._id})}>
+                  <Card>
+                    <CardItem cardBody>
+                      <Image
+                        source={
+                          item.photoUrl
+                            ? { uri: `${item.photoUrl}` }
+                            : require("../../assets/lastAirbendersLogo.png")
+                        }
+                        style={item.photoUrl ? styles.characterImage : styles.imageNotFound}
+                      />
+                    </CardItem>
+                    <CardItem cardBody>
+                      <Body>
+                        <Text>{item.name}</Text>
+                        <Text>{item.affiliation}</Text>
+                        <Text>{item.gender}</Text>
+                      </Body>
+                    </CardItem>
+                  </Card>
+                </TouchableOpacity>
               </View>
             );
           }}
