@@ -69,7 +69,7 @@ useEffect (() =>{
           renderItem={({ item }) => {
             return (
               <View>
-                <TouchableOpacity onPress={() => navigation.navigate("charactersDetail", {id: item._id})}>
+                <TouchableOpacity onPress={() => navigation.navigate("charactersDetail", {id: item._id, name: item.name})}>
                   <Card>
                     <CardItem cardBody>
                       <Image
@@ -110,11 +110,11 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   characterImage: {
-    width: width, //*0.99
+    width: width *0.99,
     height: height * 0.5,
   },
   imageNotFound: {
-    width: width, //*0.99
+    width: width *0.99,
     height: height * 0.5,
     resizeMode: "contain",
   }
