@@ -10,8 +10,8 @@ const CharactersDetailScreen = ({ route, navigation }) => {
   const { id, name } = route.params;
   const [characters, setCharacters] = useState(null);
   const [error, setError] = useState(false);
-  const allies = [];
-  const enemies = [];
+  const [allies,setAllies] = useState(null);
+  const [enemies, setEnemies] = useState(null);
 
   // Obtener la información del personaje
   const getCharactersDetail = async () => {
@@ -19,24 +19,26 @@ const CharactersDetailScreen = ({ route, navigation }) => {
     try {
       const response = await backend.get(`/${id}`);
       setCharacters(response.data);
-      //obtener lista de aliados y enemigos del personaje
-      allies.push(await backend.get(`?allies=${name}`));
-      //obtener lista de aliados y enemigos del personaje
-      enemies.push(await backend.get(`?enemies=${name}`));
+      //obtener lista de aliados y enemigos del personaje, a veces en el response solo se brinda un nombre o dos, por eso hacemos busqueda aparte
+      const dataAllies = (await backend.get(`?allies=${name}`));
+      //si hay datos se colocan en los arreglos correspondientes, de lo contrario seran arreglos vacios para posteriormente comprobar si hay o no datos en ellos
+      if (dataAllies.data.length) setAllies(dataAllies.data);
+      else setAllies([]);
+      const dataEnemies = await backend.get(`?enemies=${name}`);
+      if (dataEnemies.data.length) setEnemies(dataEnemies.data);
+      else setEnemies([]);
     } catch (error) {
       setError(true);
     }
   };
-
-  getCharactersDetail();
 
   //Efecto secundario que ejecuta la consulta a la API
   useEffect(() => {
     getCharactersDetail();
   }, []);
 
-  //Si todavia no hay datos en characters
-  if (!characters) {
+  //Si todavia no hay datos en characters, enemies o allies
+  if (!characters || !enemies || !allies) {
     return (
       <View style={{ flex: 1, justifyContent: "center" }}>
         <Spinner color="#f05454" />
@@ -69,19 +71,21 @@ const CharactersDetailScreen = ({ route, navigation }) => {
                 ? <Text>Weapon - {characters.weapon}</Text>
                 : <Text>Weapon not defined</Text>
             }
+            <Text>ALLIES</Text>
             {
-              allies > 1 
-              ? allies.data.forEach(allie => (
-                  <Text>{allie.name}</Text>
+              allies.length 
+                ? allies.map((allie) => (
+                  <Text key={allie._id}>{allie.name}</Text>
                 ))
-              : <Text>Allie - {characters.allies}</Text>
+                : <Text>Allies not defined</Text>
             }
+            <Text>ENEMIES</Text>
             {
-              enemies > 1 ? 
-                enemies.data.forEach(enemie => (
-                <Text>{enemie.name}</Text>
+              enemies.length 
+                ? enemies.map((enemie) => (
+                  <Text key={enemie._id}>{enemie.name}</Text>
                 ))
-              : <Text>Enemie - {characters.enemies}</Text>
+                : <Text>Enemies not defined</Text>
             }
           </Body>
         </CardItem>
@@ -92,11 +96,11 @@ const CharactersDetailScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   characterImage: {
-    width: width, //*0.99
+    width: width *0.99,
     height: height * 0.5,
   },
   imageNotFound: {
-    width: width, //*0.99
+    width: width *0.99,
     height: height * 0.5,
     resizeMode: "contain",
   },
