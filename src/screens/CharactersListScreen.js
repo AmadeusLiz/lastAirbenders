@@ -1,10 +1,10 @@
 //Importar módulos necesarios
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, Image, Dimensions, FlatList, View } from "react-native";
-import { Container, Input, Item, H1, Header, Spinner, Card, CardItem, Body } from "native-base";
+import { StyleSheet, Text, Image, Dimensions, FlatList, View,StatusBar, KeyboardAvoidingView } from "react-native";
+import { Container, Header} from "native-base";
 import { FontAwesome } from '@expo/vector-icons';
 import backend from "../api/backend";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 
 //Obtener valores del ancho y alto del dispositivo
 const { width, height } = Dimensions.get("window");
@@ -21,8 +21,9 @@ const CharactersListScreen = ({ navigation }) => {
     //Consulta a la API AVATAR THE LAST AIRBENDER
     try {
       //Consulta personajes random
-      const response = await backend.get(`/random?count=10`);
+      const response = await backend.get(`/random?count=20`);
       setCharacters(response.data);
+      console.log(response.data.affiliation);
     } catch (error) {
       // Error al momento de ejecutar la petición a la API
       setError(true);
@@ -53,81 +54,97 @@ const CharactersListScreen = ({ navigation }) => {
 
   if (!characters) {
     return (
-      <View style = {{ flex: 1, justifyContent: "center" }}>
-        <Spinner color = "#f05454" />
+      <View style = {styles.loading}>
+        <Image 
+          source= {require("../../assets/loadingImage.gif")}
+          style= {styles.loadingImage}
+        />
       </View>
     );
   }
 
   return (
-    <Container>
-      <Header searchBar backgroundColor="#f05454">
-        <Item>
-          <Input
-            placeholder = "¡Busca un personaje!"
-            value = {search}
-            onChangeText = {setSearch}
-            style = {searchError ? inputError : null}
+    <Container style={styles.container}>
+      {/* <StatusBar barStyle="light-content"/> */}
+      <View style={styles.header}>
+        <View style={styles.headerDesignYellow}></View>
+        <View style={styles.headerDesignWhite}>
+          <Image
+            source={require("../../assets/lastAirbendersLogo.png")}
+            style={styles.logo}
           />
-          <FontAwesome.Button
-            backgroundColor = "transparent"
-            name = "search"
-            size = {25}
-            color = "#214252"
-            onPress = {() => {
-              handlerSearch;
-            }}
-          />
-        </Item>
-      </Header>
-      <Image
-        source = {require("../../assets/lastAirbendersLogo.png")}
-        style = {styles.logoImage}
-      />
-      <H1>Personajes del día</H1>
-      <FlatList
-        data = {characters}
-        keyExtractor = {(item) => item._id}
-        ListEmptyComponent = {<Text>¡No se han encontrado personajes!</Text>}
-        renderItem = {({ item }) => {
-          return (
-            <View>
+          <View style={styles.textInputContainer}>
+            <TextInput
+              style={searchError ? styles.inputError : styles.textInput}
+              placeholder="Let's search a character!..."
+              value={search}
+              onChangeText={setSearch}
+            />
+            <FontAwesome.Button
+              style={{ flex: 1 }}
+              backgroundColor="white"
+              borderRadius= {50}
+              color="#ff9642"
+              name="search"
+              size={25}
+              onPress={() => {
+                handlerSearch;
+              }}
+            />
+          </View>
+        </View>
+      </View>
+      {/* https://reactnative.dev/docs/keyboardavoidingview */}
+       <KeyboardAvoidingView style={{flex:1}}>  
+        <View style={styles.content}>
+          {/* //https://reactnative.dev/docs/stylesheet#absolutefillobject*/}
+          <View style={styles.contentDesignWhite}></View>
+          <View style={styles.contentDesignOrange}></View>
+          <View style={styles.contentDesignYellow}></View>
+        </View>
+        <View style={styles.footer}>
+          <View style={styles.footerDesignYellow}></View>
+          <View style={styles.footerDesignOrange}></View>
+        </View>
+       </KeyboardAvoidingView>      
+      <View style= {styles.charactersContainer}>
+        <Text style={styles.title}>Characters of the day</Text>
+        <FlatList
+          data = {characters}
+          keyExtractor = {(item) => item._id}
+          ListEmptyComponent = {<Text>No characters found!</Text>}
+          renderItem = {({ item }) => {
+            return (
               <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("charactersDetail", {
-                    id: item._id,
-                    name: item.name,
-                  })
-                }
-              >
-                <Card>
-                  <CardItem cardBody>
-                    <Image
-                      source = {
-                        item.photoUrl
-                          ? { uri: `${item.photoUrl}` }
-                          : require("../../assets/lastAirbendersLogo.png")
-                      }
-                      style = {
-                        item.photoUrl
-                          ? styles.characterImage
-                          : styles.imageNotFound
-                      }
-                    />
-                  </CardItem>
-                  <CardItem cardBody>
-                    <Body>
-                      <Text>{item.name}</Text>
-                      <Text>{item.affiliation}</Text>
-                      <Text>{item.gender}</Text>
-                    </Body>
-                  </CardItem>
-                </Card>
+                  onPress={() =>
+                    navigation.navigate("charactersDetail", {
+                      id: item._id,
+                      name: item.name,
+                    })
+                  }>
+              <View style={styles.charactersItems}>
+                  <Image 
+                    source = {
+                    item.photoUrl
+                      ? { uri: `${item.photoUrl}` }
+                      : require("../../assets/unknownCharacter.png")
+                    }
+                    style = {styles.charactersImage}
+                  />
+                  <View style={styles.charactersInformationContainer}>
+                    <Text style={styles.charactersName}>{item.name}</Text>
+                    {
+                      item.affiliation
+                        ? <Text style={styles.charactersNation}>{item.affiliation}</Text>
+                        : null
+                    }                  
+                  </View>
+              </View>
               </TouchableOpacity>
-            </View>
-          );
-        }}
-      />
+            );
+          }}
+        />      
+      </View>
     </Container>
   );
 };
@@ -135,17 +152,136 @@ const CharactersListScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  logo: {
+    width: width,
+    height: height * 0.3,
+    resizeMode: "contain",
+  },
+  header: {
+    flex: 2,
+    backgroundColor: "white",
+    borderBottomRightRadius: 100
+  },
+  headerDesignYellow: {
+    ...StyleSheet.absoluteFillObject, 
+    backgroundColor: "#ffe05d"
+  },
+  headerDesignWhite: {
+    flex: 2, 
+    backgroundColor: "white", 
+    borderTopLeftRadius: 100,
+    borderBottomRightRadius: 100,
+    alignItems:"center"
+  },
+  textInputContainer: {
+    flexDirection:"row",
+    alignContent:"center",
+    position:"absolute",
+    top: height * 0.25,
+    width: width * 0.9,
+    paddingLeft: 20,
+    borderWidth: 2,
+    borderColor: "#ff9642",
+    borderRadius:100
+  },
+  textInput: {
+    flex: 2,
+    fontSize: 14,
+    color: "#646464"
+  },
+  content: {
+    flex: 1,
+    backgroundColor: "#fff8cd",
+    borderTopLeftRadius: 100,
+    borderBottomRightRadius: 100
+  },
+  contentDesignWhite: {
+    ...StyleSheet.absoluteFillObject, 
+    backgroundColor: "white"
+  },
+  contentDesignOrange: {
+    ...StyleSheet.absoluteFillObject, 
+    backgroundColor: "#ff9642", 
+    borderTopLeftRadius: 100
+  },
+  contentDesignYellow: {
+    flex: 1, 
+    backgroundColor: "#ffe05d", 
+    borderTopLeftRadius: 100,
+    borderBottomRightRadius: 100
+  },
+  footer: {
+    flex: 1,
+    backgroundColor: "#ff9642",
+    borderTopLeftRadius: 100
+  },
+  footerDesignYellow: {
+    ...StyleSheet.absoluteFillObject, 
+    backgroundColor: "#ffe05d"
+  },
+  footerDesignOrange: {
+    flex: 1, 
+    backgroundColor: "#ff9642", 
+    borderTopLeftRadius:100
+  },
+  charactersContainer: {
+    flex:1,
+    position: "absolute",
+    width: width * 0.9,
+    height: height * 0.6,
+    top: height * 0.33,
+    left: 20,
+    backgroundColor: "white",
+    borderWidth: 2,
+    borderColor: "#ff9642",
+    borderRadius: 50,
+    padding:10
+  },
+  title: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#ff9642",
+    textAlign: "center",
+    marginBottom:2
+  },
+  charactersItems: {
+    // flex:1,
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    marginBottom: 15
+  },
+  charactersImage: {
+    width: 80,
+    height: 80,
+    borderWidth: 2,
+    borderColor: "#ff9642",
+    borderRadius: 40,
+    marginRight: 10
+  },
+  charactersInformationContainer: {
+    flex: 1,
     justifyContent: "center",
-    alignItems: "center",
+    alignContent: "center",
+    paddingRight:12,
+    // borderRightWidth: 1,
+    // borderRightColor: "#ff9642"
+  },
+  charactersName: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#646464",
+    textAlign: "center"
+  },
+  charactersNation: {
+    fontSize: 11,
+    color: "#646464",
+    textAlign: "center"
   },
   logoImage: {
     width: width,
     height: height * 0.15,
     resizeMode: "contain",
-  },
-  characterImage: {
-    width: width *0.99,
-    height: height * 0.5,
   },
   imageNotFound: {
     width: width *0.99,
@@ -154,7 +290,18 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: "red",
-    borderWidth: 1,
+    borderBottomWidth: 1,
+  },
+  loading: {
+    flex: 1, 
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff8cd"
+  },
+  loadingImage: {
+    width: width * 0.70,
+    height: height * 0.70,
+    resizeMode: "contain"
   }
 });
 
