@@ -10,7 +10,7 @@ export function getRoute(affiliation){
       response.push(require("../../assets/spiritHeader.png"),"#57437d");
       return response;
     } 
-    else if (affiliation.includes("Earth") || affiliation.includes("Metal") || affiliation.toLowerCase().includes("earthbending")) {
+    else if (affiliation.includes("Earth") || affiliation.includes("Metal") || affiliation.toLowerCase().includes("earthbending") || affiliation.toLowerCase().includes("metalbending")) {
       response.push(require("../../assets/earthHeader.png"),"#335d2d");
       return response;
     } 

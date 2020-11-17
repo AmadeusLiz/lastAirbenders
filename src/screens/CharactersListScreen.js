@@ -1,10 +1,10 @@
 //Importar módulos necesarios
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, Image, Dimensions, FlatList, View,StatusBar, KeyboardAvoidingView } from "react-native";
-import { Container, Header} from "native-base";
+import { StyleSheet, Text, Image, Dimensions, FlatList, View,StatusBar } from "react-native";
+import { Container, Input} from "native-base";
 import { FontAwesome } from '@expo/vector-icons';
 import backend from "../api/backend";
-import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 //Obtener valores del ancho y alto del dispositivo
 const { width, height } = Dimensions.get("window");
@@ -21,9 +21,8 @@ const CharactersListScreen = ({ navigation }) => {
     //Consulta a la API AVATAR THE LAST AIRBENDER
     try {
       //Consulta personajes random
-      const response = await backend.get(`/random?count=20`);
+      const response = await backend.get(`/random?count=30`);
       setCharacters(response.data);
-      console.log(response.data.affiliation);
     } catch (error) {
       // Error al momento de ejecutar la petición a la API
       setError(true);
@@ -32,7 +31,9 @@ const CharactersListScreen = ({ navigation }) => {
 
   //Verificar si hay información en el input para la búsqueda
   const handlerSearch = () => {
-    if (!search) setSearchError(true); //Activara el estilo de inputError y no dejara hacer la búsqueda hasta ingresar texto
+    if (!search){
+      setSearchError(true);
+    }  //Activara el estilo de inputError y no dejara hacer la búsqueda hasta ingresar texto
     else {
       navigation.navigate("charactersResults", { search });
       setSearch(""); //Al regresar ya no estara el texto que se habia buscado
@@ -54,7 +55,7 @@ const CharactersListScreen = ({ navigation }) => {
 
   if (!characters) {
     return (
-      <View style = {styles.loading}>
+      <View style={styles.loading}>
         <Image 
           source= {require("../../assets/loadingImage.gif")}
           style= {styles.loadingImage}
@@ -65,7 +66,7 @@ const CharactersListScreen = ({ navigation }) => {
 
   return (
     <Container style={styles.container}>
-      {/* <StatusBar barStyle="light-content"/> */}
+      <StatusBar barStyle="light-content" hidden={true}/>
       <View style={styles.header}>
         <View style={styles.headerDesignYellow}></View>
         <View style={styles.headerDesignWhite}>
@@ -74,12 +75,13 @@ const CharactersListScreen = ({ navigation }) => {
             style={styles.logo}
           />
           <View style={styles.textInputContainer}>
-            <TextInput
+            <Input
               style={searchError ? styles.inputError : styles.textInput}
               placeholder="Let's search a character!..."
               value={search}
               onChangeText={setSearch}
             />
+            {console.log(search)}
             <FontAwesome.Button
               style={{ flex: 1 }}
               backgroundColor="white"
@@ -87,26 +89,21 @@ const CharactersListScreen = ({ navigation }) => {
               color="#ff9642"
               name="search"
               size={25}
-              onPress={() => {
-                handlerSearch;
-              }}
+              onPress={handlerSearch}
             />
           </View>
         </View>
       </View>
-      {/* https://reactnative.dev/docs/keyboardavoidingview */}
-       <KeyboardAvoidingView style={{flex:1}}>  
-        <View style={styles.content}>
-          {/* //https://reactnative.dev/docs/stylesheet#absolutefillobject*/}
-          <View style={styles.contentDesignWhite}></View>
-          <View style={styles.contentDesignOrange}></View>
-          <View style={styles.contentDesignYellow}></View>
-        </View>
-        <View style={styles.footer}>
-          <View style={styles.footerDesignYellow}></View>
-          <View style={styles.footerDesignOrange}></View>
-        </View>
-       </KeyboardAvoidingView>      
+      <View style={styles.content}>
+        {/* //https://reactnative.dev/docs/stylesheet#absolutefillobject*/}
+        <View style={styles.contentDesignWhite}></View>
+        <View style={styles.contentDesignOrange}></View>
+        <View style={styles.contentDesignYellow}></View>
+      </View>
+      <View style={styles.footer}>
+        <View style={styles.footerDesignYellow}></View>
+        <View style={styles.footerDesignOrange}></View>
+      </View>
       <View style= {styles.charactersContainer}>
         <Text style={styles.title}>Characters of the day</Text>
         <FlatList
@@ -121,25 +118,25 @@ const CharactersListScreen = ({ navigation }) => {
                       id: item._id,
                       name: item.name,
                     })
-                  }>
-              <View style={styles.charactersItems}>
-                  <Image 
-                    source = {
-                    item.photoUrl
-                      ? { uri: `${item.photoUrl}` }
-                      : require("../../assets/unknownCharacter.png")
-                    }
-                    style = {styles.charactersImage}
-                  />
-                  <View style={styles.charactersInformationContainer}>
-                    <Text style={styles.charactersName}>{item.name}</Text>
-                    {
-                      item.affiliation
-                        ? <Text style={styles.charactersNation}>{item.affiliation}</Text>
-                        : null
-                    }                  
-                  </View>
-              </View>
+              }>
+                <View style={styles.charactersItems}>
+                    <Image 
+                      source = {
+                      item.photoUrl
+                        ? { uri: `${item.photoUrl}` }
+                        : require("../../assets/unknownCharacter.png")
+                      }
+                      style = {styles.charactersImage}
+                    />
+                    <View style={styles.charactersInformationContainer}>
+                      <Text style={styles.charactersName}>{item.name}</Text>
+                      {
+                        item.affiliation
+                          ? <Text style={styles.charactersNation}>{item.affiliation}</Text>
+                          : null
+                      }                  
+                    </View>
+                </View>
               </TouchableOpacity>
             );
           }}
@@ -183,7 +180,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     borderWidth: 2,
     borderColor: "#ff9642",
-    borderRadius:100
+    borderRadius:100,
   },
   textInput: {
     flex: 2,
@@ -246,7 +243,6 @@ const styles = StyleSheet.create({
     marginBottom:2
   },
   charactersItems: {
-    // flex:1,
     flexDirection: "row",
     paddingHorizontal: 10,
     marginBottom: 15
@@ -264,8 +260,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignContent: "center",
     paddingRight:12,
-    // borderRightWidth: 1,
-    // borderRightColor: "#ff9642"
   },
   charactersName: {
     fontSize: 15,
@@ -283,14 +277,10 @@ const styles = StyleSheet.create({
     height: height * 0.15,
     resizeMode: "contain",
   },
-  imageNotFound: {
-    width: width *0.99,
-    height: height * 0.5,
-    resizeMode: "contain",
-  },
   inputError: {
     borderColor: "red",
-    borderBottomWidth: 1,
+    borderLeftWidth: 2,
+    borderRightWidth: 2,
   },
   loading: {
     flex: 1, 
