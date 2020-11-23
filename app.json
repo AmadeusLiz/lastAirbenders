@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "lastAirbenders",
-    "slug": "lastAirbenders",
+    "name": "LastAirbenders",
+    "slug": "LastAirbenders",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -17,7 +17,7 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false
     },
     "android": {
       "adaptiveIcon": {

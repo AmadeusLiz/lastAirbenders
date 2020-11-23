@@ -1,38 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet, View, Text, Dimensions, Image, StatusBar } from "react-native";
+import React from "react";
+import { Image, StyleSheet, Dimensions, View, StatusBar, Text, Linking } from "react-native";
 import { Container } from "native-base";
-import backend from "../api/backend";
-import { FlatList } from "react-native-gesture-handler";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { data } from "../api/data";
 import { FontAwesome } from '@expo/vector-icons';
+import Swiper from 'react-native-swiper';
 
 const { width, height } = Dimensions.get("window");
 
-const CharactersResultsScreen = ({ route, navigation }) => {
-  // Obtener desde los parámetros de la navegación el término de búsqueda
-  const { search } = route.params;
-
-  //Hook de estado para los personajes
-  const [characters, setCharacters] = useState(null);
-  const [error, setError] = useState(false);
-
-  // Obtiene los personajes que coinciden con el término de búsqueda
-  const getSearchCharacters = async () => {
-    try {
-      const response = await backend.get(`?name=${search}`);
-      setCharacters(response.data);
-    } catch (error) {
-      setError(true);
-    }
-  };
-
-  // Efecto para comunicarnos con el API y buscar los personajes
-  useEffect(() => {
-    getSearchCharacters();
-  }, []);
-
-  // Mostrar pantalla solo con gif de carga si la API no ha dado respuesta
-  if (!characters) {
+const AboutScreen = ({ navigation }) => {
+  // Mostrar pantalla solo con gif de carga si no se ha importado la información
+  if (!data) {
     return (
       <View style={styles.loading}>
         <Image
@@ -45,6 +22,9 @@ const CharactersResultsScreen = ({ route, navigation }) => {
 
   //https://reactnative.dev/docs/stylesheet#absolutefillobject -> Cómo usar la propiedad
   //https://reactnavigation.org/docs/navigating/ -> (Going back) para no especificar el nombre de la pantalla a regresar, sino solo hacerlo directamente a la pantlala anterior.
+  //https://github.com/leecade/react-native-swiper -> Swiper y sus propiedades
+  //https://reactnative.dev/docs/statusbar         -> StatusBar y sus propiedades
+  //https://reactnative.dev/docs/linking           -> Colocar links a páginas externas
   return (
     <Container style={styles.container}>
       <StatusBar barStyle="light-content" hidden={true} />
@@ -74,44 +54,47 @@ const CharactersResultsScreen = ({ route, navigation }) => {
         <View style={styles.footerDesignYellow}/>
         <View style={styles.footerDesignOrange}/>
       </View>
-      <View style={styles.charactersContainer}>
-        <Text style={styles.title}>Characters found: {characters.length}</Text>
-        <FlatList
-          data={characters}
-          keyExtractor={(item) => item._id}
-          ListEmptyComponent={<Text style={styles.noDataFound}>No characters found!</Text>}
-          renderItem={({ item }) => {
-            return (
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("charactersDetail", {
-                    id: item._id,
-                    name: item.name,
-                  })
-                }
-              >
-                <View style={styles.charactersItems}>
-                  <Image
-                    source={
-                      item.photoUrl
-                        ? { uri: `${item.photoUrl}` }
-                        : require("../../assets/unknownCharacter.png")
-                    }
-                    style={styles.charactersImage}
-                  />
-                  <View style={styles.charactersInformationContainer}>
-                    <Text style={styles.charactersName}>{item.name}</Text>
-                    {item.affiliation ? (
-                      <Text style={styles.charactersNation}>
-                        {item.affiliation}
-                      </Text>
-                    ) : null}
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          }}
-        />
+      <View style={styles.dataContainer}>
+        <Text style={styles.title}>Avatar: The Last Airbender</Text>
+        <Swiper activeDotColor="#ff9642">
+        <View style={styles.dataItems}>
+            <Image source={data[0].image} style={styles.synopsisImage} />
+            <Text style={styles.information}>{data[0].information}</Text>
+          </View>
+          <View style={styles.dataItems}>
+            <Image source={data[1].image} style={styles.informationImage} />
+            <Text style={styles.informationTitle}>{data[1].title}</Text>
+            <Text style={styles.information}>{data[1].information}</Text>
+          </View>
+          <View style={styles.dataItems}>
+            <Image source={data[2].image} style={styles.informationImage} />
+            <Text style={styles.informationTitle}>{data[2].title}</Text>
+            <Text style={styles.information}>{data[2].information}</Text>
+          </View>
+          <View style={styles.dataItems}>
+            <Image source={data[3].image} style={styles.informationImage} />
+            <Text style={styles.informationTitle}>{data[3].title}</Text>
+            <Text style={styles.information}>{data[3].information}</Text>
+          </View>
+          <View style={styles.dataItems}>
+            <Image source={data[4].image} style={styles.informationImage} />
+            <Text style={styles.informationTitle}>{data[4].title}</Text>
+            <Text style={styles.information}>{data[4].information}</Text>
+          </View>
+          <View style={styles.dataItems}>
+            <Image source={data[5].image} style={styles.informationImage} />
+            <Text style={styles.informationTitle}>{data[5].title}</Text>
+            <Text style={styles.information}>{data[5].information}</Text>
+            
+          </View>
+          <View style={styles.dataItems}>
+            <Image source={data[6].image} style={styles.informationImage} />
+            <Text style={styles.informationTitle}>{data[6].title}</Text>
+            <Text style={styles.information}>{data[6].information}</Text>
+            <Text style={[styles.links, {marginTop: 40}]} onPress={() => Linking.openURL('https://github.com/AmadeusLiz/lastAirbenders')}>GitHub Project</Text>
+            <Text style={styles.links} onPress={() => Linking.openURL('https://github.com/AmadeusLiz')}>Follow my GitHub account! :)</Text>
+          </View>
+        </Swiper>
       </View>
     </Container>
   );
@@ -120,6 +103,7 @@ const CharactersResultsScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
   },
   loading: {
     flex: 1,
@@ -194,18 +178,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#ff9642", 
     borderTopLeftRadius:100
   },
-  charactersContainer: {
-    flex:1,
+  dataContainer: {
     position: "absolute",
     width: width * 0.9,
     height: height * 0.75,
     top: height * 0.21,
     left: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
     borderWidth: 2,
     borderColor: "#ff9642",
     borderRadius: 50,
-    padding:10
+    padding:10,
+    justifyContent: "center"
   },
   title: {
     fontSize: 15,
@@ -214,42 +198,39 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom:2
   },
-  charactersItems: {
-    flexDirection: "row",
+  dataItems: {
     paddingHorizontal: 10,
-    marginBottom: 15
+    alignItems: "center"
   },
-  charactersImage: {
-    width: 80,
-    height: 80,
-    borderWidth: 2,
-    borderColor: "#ff9642",
-    borderRadius: 40,
-    marginRight: 10
+  synopsisImage: {
+    width: 300,
+    height: 200,
+    marginTop: 10
   },
-  charactersInformationContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignContent: "center",
-    paddingRight:12,
+  informationImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    marginVertical: 15
   },
-  charactersName: {
+  informationTitle: {
     fontSize: 15,
     fontWeight: "bold",
     color: "#646464",
     textAlign: "center"
   },
-  charactersNation: {
-    fontSize: 11,
+  information: {
+    fontSize: 12,
+    color: "#646464",
+    textAlign: "justify"
+  },
+  links: {
+    marginTop: 5,
+    fontSize: 15,
+    fontWeight: "bold",
     color: "#646464",
     textAlign: "center"
-  },
-  noDataFound: {
-    fontSize: 20,
-    color: "#646464",
-    textAlign: "center",
-    marginVertical: 20
   }
 });
 
-export default CharactersResultsScreen;
+export default AboutScreen;

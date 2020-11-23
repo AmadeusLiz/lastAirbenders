@@ -3,13 +3,13 @@ import { Image, StyleSheet, Dimensions, View, ImageBackground, ScrollView, Statu
 import { Text, Container} from "native-base";
 import backend from "../api/backend";
 import { FontAwesome } from '@expo/vector-icons';
-import {getRoute} from "../api/getRoute";
+import { getRoute } from "../api/getRoute";
 
 const { width, height } = Dimensions.get("window");
 const imageRoute = { route: "", color: ""};
 
 const CharactersDetailScreen = ({ route, navigation }) => {
-  // Obtener el id de la película
+  // Destructuring de los parametros recibidos e inicialización de Hooks de estado
   const { id, name } = route.params;
   const [characters, setCharacters] = useState(null);
   const [error, setError] = useState(false);
@@ -18,7 +18,6 @@ const CharactersDetailScreen = ({ route, navigation }) => {
   
   // Obtener la información del personaje
   const getCharactersDetail = async () => {
-    //Obtener el id del caracter
     try {
       //Petición para obtener la información del personaje seleccionado, id enviado a través del navigator.navigate()
       const response = await backend.get(`/${id}`);
@@ -29,7 +28,7 @@ const CharactersDetailScreen = ({ route, navigation }) => {
       imageRoute.route = responseFunction[0];
       imageRoute.color = responseFunction[1];
 
-      //obtener lista de aliados y enemigos del personaje, a veces en el response solo se brinda un nombre o dos, por eso hacemos busqueda aparte
+      //obtener lista de aliados y enemigos del personaje, a veces en el response solo se brinda un nombre o dos, por eso hacemos búsqueda aparte
       const dataAllies = (await backend.get(`?allies=${name}`));
       
       //si hay datos se colocan en los arreglos correspondientes, de lo contrario seran arreglos vacios para posteriormente comprobar si hay o no datos en ellos
@@ -48,7 +47,7 @@ const CharactersDetailScreen = ({ route, navigation }) => {
     getCharactersDetail();
   }, []);
 
-  //Si todavia no hay datos en characters, enemies o allies
+  //Si todavia no hay datos en characters, enemies, allies o no hay ruta definida para la imagen de fondo
   if (!characters || !enemies || !allies || !imageRoute.route ) {
     return (
       <View style = {styles.loadingContainer}>
@@ -61,6 +60,8 @@ const CharactersDetailScreen = ({ route, navigation }) => {
   }
 
   //https://reactnative.dev/docs/imagebackground -> para utilizar una imagen de fondo, documentación de react native.
+  //https://reactnavigation.org/docs/navigating/ -> (Going back) para no especificar el nombre de la pantalla a regresar, sino solo hacerlo directamente a la pantlala anterior.
+  //https://reactnative.dev/docs/statusbar       -> Propiedades del StatusBar
   return (
     <Container style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -83,7 +84,7 @@ const CharactersDetailScreen = ({ route, navigation }) => {
             name="chevron-left"
             size={24}
             color="white"
-            onPress={() => navigation.goBack()} //https://reactnavigation.org/docs/navigating/ (Going back)
+            onPress={() => navigation.goBack()}
           />
         </View>
       </ImageBackground>
@@ -99,6 +100,30 @@ const CharactersDetailScreen = ({ route, navigation }) => {
           </Text>
         ) : null}
         <ScrollView>
+          {characters.affiliation ? 
+            <View style={styles.informationContainer}>
+              <Text style={styles.informationBold}>Affiliation | </Text>
+              <Text style={styles.information}>{characters.affiliation}</Text>
+            </View>
+           : null}
+          {characters.weapon ? 
+            <View style={styles.informationContainer}>
+              <Text style={styles.informationBold}>Weapon | </Text>
+              <Text style={styles.information}>{characters.weapon}</Text>
+            </View>
+            : null}
+          {characters.gender ? 
+            <View style={styles.informationContainer}>
+              <Text style={styles.informationBold}>Gender | </Text>
+              <Text style={styles.information}>{characters.gender}</Text>
+            </View>
+            : null}
+          {characters.hair ? 
+            <View style={styles.informationContainer}>
+              <Text style={styles.informationBold}>Hair color | </Text>
+              <Text style={styles.information}>{characters.hair}</Text>
+            </View>
+           : null}
           <Text style={styles.titles}>ALLIES</Text>
           {allies.length ? (
             allies.map((allie) => (
@@ -113,25 +138,24 @@ const CharactersDetailScreen = ({ route, navigation }) => {
                 />
                 <View style={styles.alliesInformationContainer}>
                   <Text style={styles.alliesEnemiesName}>{allie.name}</Text>
-                  {allie.affiliation ? 
-                    <Text style={styles.allieEnemieNation}>{allie.affiliation}</Text>
-                    : null
-                  }
+                  {allie.affiliation ? (
+                    <Text style={styles.information}>{allie.affiliation}</Text>
+                  ) : null}
                 </View>
               </View>
             ))
-          ) 
-          : <Text style={styles.noDataFound}>No allies found!</Text>
-          }
+          ) : (
+            <Text style={styles.noDataFound}>No allies found!</Text>
+          )}
           <Text style={styles.titles}>ENEMIES</Text>
-          {enemies.length ? 
+          {enemies.length ? (
             enemies.map((enemie) => (
               <View style={styles.alliesEnemiesItems} key={enemie._id}>
                 <View style={styles.enemiesInformationContainer}>
                   <Text style={styles.alliesEnemiesName}>{enemie.name}</Text>
-                  {enemie.affiliation ? 
-                    <Text style={styles.allieEnemieNation}>{enemie.affiliation}</Text>
-                    : null}
+                  {enemie.affiliation ? (
+                    <Text style={styles.information}>{enemie.affiliation}</Text>
+                  ) : null}
                 </View>
                 <Image
                   source={
@@ -143,8 +167,9 @@ const CharactersDetailScreen = ({ route, navigation }) => {
                 />
               </View>
             ))
-            : <Text style={styles.noDataFound}>No enemies found!</Text>
-          }
+          ) : (
+            <Text style={styles.noDataFound}>No enemies found!</Text>
+          )}
         </ScrollView>
       </View>
     </Container>
@@ -217,7 +242,7 @@ const styles = StyleSheet.create({
     alignContent: "center",
     paddingRight: 12,
     borderRightWidth: 1,
-    borderRightColor: "#7ea04d"
+    borderRightColor: "#335d2d"
   },
   enemiesImage: {
     width: 80,
@@ -240,10 +265,21 @@ const styles = StyleSheet.create({
     color: "#646464",
     textAlign: "center"
   },
-  allieEnemieNation: {
+  informationContainer: {
+    flexDirection: "row",
+    justifyContent: 'center',
+    flexWrap: 'wrap'
+  },
+  information: {
     fontSize: 13,
     color: "#646464",
-    textAlign: "center"
+    textAlign: 'center'
+  },
+  informationBold: {
+    fontSize: 13,
+    fontWeight: "bold",
+    color: "#646464",
+    textAlign: 'center'
   },
   noDataFound: {
     fontSize: 20,

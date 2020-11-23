@@ -1,6 +1,6 @@
 //Importar módulos necesarios
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, Image, Dimensions, FlatList, View,StatusBar } from "react-native";
+import { StyleSheet, Text, Image, Dimensions, FlatList, View, StatusBar } from "react-native";
 import { Container, Input} from "native-base";
 import { FontAwesome } from '@expo/vector-icons';
 import backend from "../api/backend";
@@ -11,7 +11,7 @@ const { width, height } = Dimensions.get("window");
 
 //Variable que contiene la pantalla
 const CharactersListScreen = ({ navigation }) => {
-  //Hook para el estado de las canciones
+  //Hook de estado para los personajes
   const [characters, setCharacters] = useState(null);
   const [error, setError] = useState(false);
   const [search, setSearch] = useState("");
@@ -64,24 +64,26 @@ const CharactersListScreen = ({ navigation }) => {
     );
   }
 
+  //https://reactnative.dev/docs/stylesheet#absolutefillobject -> Cómo usar la propiedad
+  //https://reactnavigation.org/docs/navigating/ -> (Going back) para no especificar el nombre de la pantalla a regresar, sino solo hacerlo directamente a la pantlala anterior.
+  //https://reactnative.dev/docs/statusbar       -> Propiedades del StatusBar  
   return (
     <Container style={styles.container}>
       <StatusBar barStyle="light-content" hidden={true}/>
       <View style={styles.header}>
-        <View style={styles.headerDesignYellow}></View>
+        <View style={styles.headerDesignYellow}/>
         <View style={styles.headerDesignWhite}>
           <Image
             source={require("../../assets/lastAirbendersLogo.png")}
             style={styles.logo}
           />
-          <View style={styles.textInputContainer}>
+          <View style={searchError ? styles.inputError : styles.textInputContainer}>
             <Input
-              style={searchError ? styles.inputError : styles.textInput}
+              style={styles.textInput}
               placeholder="Let's search a character!..."
               value={search}
               onChangeText={setSearch}
             />
-            {console.log(search)}
             <FontAwesome.Button
               style={{ flex: 1 }}
               backgroundColor="white"
@@ -92,17 +94,24 @@ const CharactersListScreen = ({ navigation }) => {
               onPress={handlerSearch}
             />
           </View>
+          <View style={styles.informationButton}>
+            <FontAwesome
+              name="info-circle"
+              size={40}
+              color="#ff9642"
+              onPress={() => navigation.navigate("about")}
+            />
+        </View>
         </View>
       </View>
       <View style={styles.content}>
-        {/* //https://reactnative.dev/docs/stylesheet#absolutefillobject*/}
-        <View style={styles.contentDesignWhite}></View>
-        <View style={styles.contentDesignOrange}></View>
-        <View style={styles.contentDesignYellow}></View>
+        <View style={styles.contentDesignWhite}/>
+        <View style={styles.contentDesignOrange}/>
+        <View style={styles.contentDesignYellow}/>
       </View>
       <View style={styles.footer}>
-        <View style={styles.footerDesignYellow}></View>
-        <View style={styles.footerDesignOrange}></View>
+        <View style={styles.footerDesignYellow}/>
+        <View style={styles.footerDesignOrange}/>
       </View>
       <View style= {styles.charactersContainer}>
         <Text style={styles.title}>Characters of the day</Text>
@@ -222,6 +231,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#ff9642", 
     borderTopLeftRadius:100
   },
+  informationButton:{
+    position: 'absolute',
+    right: 0,
+    marginTop: 10,
+    marginRight: 20
+  },
   charactersContainer: {
     flex:1,
     position: "absolute",
@@ -229,7 +244,7 @@ const styles = StyleSheet.create({
     height: height * 0.6,
     top: height * 0.33,
     left: 20,
-    backgroundColor: "white",
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
     borderWidth: 2,
     borderColor: "#ff9642",
     borderRadius: 50,
@@ -278,9 +293,15 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
   inputError: {
+    flexDirection:"row",
+    alignContent:"center",
+    position:"absolute",
+    top: height * 0.25,
+    width: width * 0.9,
+    paddingLeft: 20,
+    borderWidth: 2,
     borderColor: "red",
-    borderLeftWidth: 2,
-    borderRightWidth: 2,
+    borderRadius:100,
   },
   loading: {
     flex: 1, 
