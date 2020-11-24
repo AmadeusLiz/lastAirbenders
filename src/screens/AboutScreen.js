@@ -57,43 +57,26 @@ const AboutScreen = ({ navigation }) => {
       <View style={styles.dataContainer}>
         <Text style={styles.title}>Avatar: The Last Airbender</Text>
         <Swiper activeDotColor="#ff9642">
-        <View style={styles.dataItems}>
-            <Image source={data[0].image} style={styles.synopsisImage} />
-            <Text style={styles.information}>{data[0].information}</Text>
-          </View>
-          <View style={styles.dataItems}>
-            <Image source={data[1].image} style={styles.informationImage} />
-            <Text style={styles.informationTitle}>{data[1].title}</Text>
-            <Text style={styles.information}>{data[1].information}</Text>
-          </View>
-          <View style={styles.dataItems}>
-            <Image source={data[2].image} style={styles.informationImage} />
-            <Text style={styles.informationTitle}>{data[2].title}</Text>
-            <Text style={styles.information}>{data[2].information}</Text>
-          </View>
-          <View style={styles.dataItems}>
-            <Image source={data[3].image} style={styles.informationImage} />
-            <Text style={styles.informationTitle}>{data[3].title}</Text>
-            <Text style={styles.information}>{data[3].information}</Text>
-          </View>
-          <View style={styles.dataItems}>
-            <Image source={data[4].image} style={styles.informationImage} />
-            <Text style={styles.informationTitle}>{data[4].title}</Text>
-            <Text style={styles.information}>{data[4].information}</Text>
-          </View>
-          <View style={styles.dataItems}>
-            <Image source={data[5].image} style={styles.informationImage} />
-            <Text style={styles.informationTitle}>{data[5].title}</Text>
-            <Text style={styles.information}>{data[5].information}</Text>
-            
-          </View>
-          <View style={styles.dataItems}>
-            <Image source={data[6].image} style={styles.informationImage} />
-            <Text style={styles.informationTitle}>{data[6].title}</Text>
-            <Text style={styles.information}>{data[6].information}</Text>
-            <Text style={[styles.links, {marginTop: 40}]} onPress={() => Linking.openURL('https://github.com/AmadeusLiz/lastAirbenders')}>GitHub Project</Text>
-            <Text style={styles.links} onPress={() => Linking.openURL('https://github.com/AmadeusLiz')}>Follow my GitHub account! :)</Text>
-          </View>
+          {data.map((element, index) => (
+            (index === 0 || index === 6) 
+                ? index === 0 
+                  ? <View style={styles.dataItems} key={index}>
+                      <Image source={element.image} style={styles.synopsisImage} />
+                      <Text style={styles.information}>{element.information}</Text>
+                    </View>
+                  : <View style={styles.dataItems} key={index}>
+                      <Image source={element.image} style={styles.informationImage} />
+                      <Text style={styles.informationTitle}>{element.title}</Text>
+                      <Text style={styles.information}>{element.information}</Text>
+                      <Text style={[styles.links, {marginTop: 40}]} onPress={() => Linking.openURL('https://github.com/AmadeusLiz/lastAirbenders')}>GitHub Project</Text>
+                      <Text style={styles.links} onPress={() => Linking.openURL('https://github.com/AmadeusLiz')}>Follow my GitHub account! :)</Text>
+                    </View>              
+            : <View style={styles.dataItems} key={index}>
+                <Image source={element.image} style={styles.informationImage} />
+                <Text style={styles.informationTitle}>{element.title}</Text>
+                <Text style={styles.information}>{element.information}</Text>
+              </View>
+          ))}
         </Swiper>
       </View>
     </Container>
